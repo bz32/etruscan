@@ -3,6 +3,8 @@ package com.example.refileapp;
 import android.content.*;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +20,8 @@ public class RefileActivity extends AppCompatActivity {
 
     private TextView trayText, countText, itemText;
 
+    private final Handler handler = new Handler(Looper.getMainLooper());
+
     private final BroadcastReceiver scanReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -25,8 +29,14 @@ public class RefileActivity extends AppCompatActivity {
             if (scanned == null || scanned.isEmpty()) return;
 
             if (currentTray == null) {
-                currentTray = scanned;
-                trayText.setText("Tray: " + currentTray);
+                // Validate tray format: two letters + 5-6 digits
+                if (scanned.matches("(?i)^[A-Z]{2}\\d{5,6}$")) {
+                    currentTray = scanned.toUpperCase();
+                    trayText.setText("Tray: " + currentTray);
+                } else {
+                    trayText.setText("Invalid tray barcode: " + scanned);
+                    handler.postDelayed(() -> trayText.setText("Tray: (scan tray)"), 2000);
+                }
             } else {
                 String cleanedItem = cleanItemBarcode(scanned);
                 if (cleanedItem == null) {
@@ -39,6 +49,10 @@ public class RefileActivity extends AppCompatActivity {
                 itemText.setText("Item: " + cleanedItem);
                 itemCount++;
                 countText.setText("Items Scanned: " + itemCount);
+
+                // Auto-clear the item text after 2 seconds
+                handler.postDelayed(() -> itemText.setText("Item: (scan item)"), 2000);
+
                 currentTray = null;
                 trayText.setText("Tray: (scan tray)");
             }
