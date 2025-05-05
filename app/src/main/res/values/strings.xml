@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Etruscan</string>
+
+    <!-- Dashboard -->
+    <string name="start_refile_session">Start Refile-to-tray Session</string>
+    <string name="upload_to_las">Upload to LAS</string>
+    <string name="view_scan_log">View Scan Log</string>
+
+    <!-- Upload Screen -->
+    <string name="upload_prompt">Would you like to upload the file refile.dat last updated %1$s to LAS?</string>
+    <string name="wifi_required">You must be on Wi-Fi to proceed.</string>
+    <string name="wifi_confirmed">You are confirmed on Wi-Fi. Upload to LAS?</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="upload_success">Upload to LAS successful.</string>
+    <string name="upload_failed">Upload failed: %1$s</string>
+    <string name="back_to_dashboard">Back to Dashboard</string>
+
+    <!-- Login Inputs -->
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="enter_credentials">Please enter your LAS credentials:</string>
+
+    <!-- Errors -->
+    <string name="invalid_credentials">Invalid username or password.</string>
+    <string name="upload_exception">An error occurred during upload.</string>
+</resources>

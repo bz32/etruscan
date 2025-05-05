@@ -47,6 +47,8 @@ dependencies {
     implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'commons-net:commons-net:3.8.0'
+    implementation 'com.jcraft:jsch:0.1.55'
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core

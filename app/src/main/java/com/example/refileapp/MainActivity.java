@@ -10,9 +10,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Button startButton = findViewById(R.id.button_start);
         startButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, RefileActivity.class);
+            startActivity(intent);
+        });
+
+        Button uploadButton = findViewById(R.id.button_upload_las);
+        uploadButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, UploadActivity.class);
             startActivity(intent);
         });
     }
