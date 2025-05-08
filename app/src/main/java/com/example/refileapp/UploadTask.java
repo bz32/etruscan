@@ -2,6 +2,7 @@ package com.example.refileapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Environment;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Toast;
@@ -60,7 +61,8 @@ public class UploadTask {
 
     // Background task logic
     private String doUpload() {
-        File refileFile = new File(context.getExternalFilesDir(null), "RefileApp/refile.dat");
+        //File refileFile = new File(context.getExternalFilesDir(null), "RefileApp/refile.dat");
+        File refileFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "RefileApp/refile.dat");
 
         if (!refileFile.exists()) {
             return "Error: refile.dat not found.";
