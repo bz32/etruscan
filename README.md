@@ -2,6 +2,8 @@
 
 Etruscan is an Android app designed for efficient barcode scanning and tracking in a refile process. This app allows users to scan tray and item barcodes and save the results to a file for integration with their inventory management systems.
 
+It was developed with a lot of help from AI.
+
 ---
 
 ## Features
