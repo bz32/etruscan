@@ -47,7 +47,8 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
         progressBar = findViewById(R.id.progress_bar);
 
         // Show last modified time of refile.dat
-        File refileFile = new File(getExternalFilesDir(null), "RefileApp/refile.dat");
+
+        File refileFile = FileHelper.getRefileFile();
         String timestamp = "Unknown";
         if (refileFile.exists()) {
             long lastModified = refileFile.lastModified();

@@ -61,8 +61,7 @@ public class UploadTask {
 
     // Background task logic
     private String doUpload() {
-        //File refileFile = new File(context.getExternalFilesDir(null), "RefileApp/refile.dat");
-        File refileFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "RefileApp/refile.dat");
+        File refileFile = FileHelper.getRefileFile();
 
         if (!refileFile.exists()) {
             return "Error: refile.dat not found.";

@@ -126,9 +126,9 @@ public class RefileActivity extends AppCompatActivity {
 
     private void setupFile() {
         try {
-            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "RefileApp");
+            file = FileHelper.getRefileFile();
+            File dir = file.getParentFile();
             if (!dir.exists()) dir.mkdirs();
-            file = new File(dir, "refile.dat");
             writer = new BufferedWriter(new FileWriter(file, true));
         } catch (IOException e) {
             e.printStackTrace();
@@ -190,13 +190,14 @@ public class RefileActivity extends AppCompatActivity {
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date());
         String fullMessage = timestamp + " - " + message + "\n";
 
-        File logFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), "RefileApp/scanlog.txt");
+        File logFile = FileHelper.getScanLogFile();
 
         try {
-            if (!logFile.getParentFile().exists()) {
-                logFile.getParentFile().mkdirs();
+            File dir = logFile.getParentFile();
+            if (!dir.exists()) {
+                dir.mkdirs();
             }
+
             FileWriter writer = new FileWriter(logFile, true);
             writer.append(fullMessage);
             writer.close();
@@ -206,8 +207,7 @@ public class RefileActivity extends AppCompatActivity {
     }
 
     private void showScanLog() {
-        File logFile = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), "RefileApp/scanlog.txt");
+        File logFile = FileHelper.getScanLogFile();
 
         StringBuilder logContents = new StringBuilder();
         try {
