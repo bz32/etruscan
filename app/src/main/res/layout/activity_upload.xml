@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/upload_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -11,46 +11,55 @@
         android:id="@+id/upload_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Upload message will go here"
-        android:textSize="18sp"
-        android:layout_marginBottom="24dp" />
-
-    <Button
-        android:id="@+id/button_upload_yes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Yes"
-        android:layout_gravity="center_horizontal" />
-
-    <Button
-        android:id="@+id/button_upload_cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cancel"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp" />
+        android:text="Provide your credentials to upload the file..."
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp" />
 
     <EditText
         android:id="@+id/usernameInput"
-        android:layout_width="match_parent"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:hint="@string/username"
-        android:inputType="text" />
+        android:hint="Username"
+        android:inputType="text"
+        android:layout_gravity="center_horizontal" />
 
     <EditText
         android:id="@+id/passwordInput"
-        android:layout_width="match_parent"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:hint="@string/password"
-        android:inputType="textPassword" />
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Centered horizontal layout for buttons -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/button_upload_yes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Authenticate Upload to LAS"
+            android:layout_marginEnd="16dp" />
+
+        <Button
+            android:id="@+id/button_upload_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:visibility="gone"
-        android:layout_marginTop="16dp" />
+        android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

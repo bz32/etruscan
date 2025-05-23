@@ -54,8 +54,7 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
             long lastModified = refileFile.lastModified();
             timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date(lastModified));
         }
-
-        uploadMessage.setText("Would you like to upload the file refile.dat last updated " + timestamp + " to LAS?");
+        uploadMessage.setText("Provide your credentials to upload the file refile.dat last updated " + timestamp + " to LAS.");
 
         yesButton.setOnClickListener(v -> {
             if (!isWifiConnected()) {
