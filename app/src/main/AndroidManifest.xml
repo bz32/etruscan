@@ -13,6 +13,15 @@
 
         <activity android:name=".UploadActivity" />
         <activity android:name=".RefileActivity" />
+
+        <activity
+            android:name=".TrayToShelfActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.symbol.datawedge.api.RESULT_ACTION" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

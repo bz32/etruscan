@@ -44,10 +44,10 @@ public class RefileActivity extends AppCompatActivity {
                 if (scanned.matches("(?i)^[A-Z]{2}\\d{5,6}$")) {
                     currentTray = scanned.toUpperCase();
                     trayText.setText("Tray: " + currentTray);
-                    appendToLog("Tray scanned: " + scanned + " - VALID");
+                    FileHelper.appendToLog("Tray scanned: " + scanned + " - VALID");
                 } else {
                     trayText.setText("Invalid tray barcode: " + scanned);
-                    appendToLog("Tray scanned: " + scanned + " - INVALID");
+                    FileHelper.appendToLog("Tray scanned: " + scanned + " - INVALID");
                     playErrorTone(); // 👈 Play bonk for invalid tray
                     handler.postDelayed(() -> trayText.setText("Tray: (scan tray)"), 2000);
                 }
@@ -56,11 +56,11 @@ public class RefileActivity extends AppCompatActivity {
                 Log.d("SCAN", "Scanned item: " + scanned + ", cleaned: " + cleanedItem);
                 if (cleanedItem == null) {
                     Toast.makeText(context, "Invalid item barcode", Toast.LENGTH_SHORT).show();
-                    appendToLog("Item scanned: " + scanned + " - INVALID");
+                    FileHelper.appendToLog("Item scanned: " + scanned + " - INVALID");
                     playErrorTone(); // 👈 Play bonk for invalid item
                     return;
                 }
-                appendToLog("Item scanned: " + scanned + " - VALID (cleaned: " + cleanedItem + ")");
+                FileHelper.appendToLog("Item scanned: " + scanned + " - VALID (cleaned: " + cleanedItem + ")");
 
                 String line = "REF" + currentTray + "#" + cleanedItem;
                 writeToFile(line);
@@ -184,26 +184,6 @@ public class RefileActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void appendToLog(String message) {
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date());
-        String fullMessage = timestamp + " - " + message + "\n";
-
-        File logFile = FileHelper.getScanLogFile();
-
-        try {
-            File dir = logFile.getParentFile();
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            FileWriter writer = new FileWriter(logFile, true);
-            writer.append(fullMessage);
-            writer.close();
-        } catch (IOException e) {
-            Log.e("SCANLOG", "Failed to write scan log", e);
-        }
     }
 
     private void showScanLog() {

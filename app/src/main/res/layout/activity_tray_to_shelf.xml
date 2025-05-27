@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Current shelf barcode -->
+        <TextView
+            android:id="@+id/shelfText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Shelf:"
+            android:textSize="18sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Position and Tray input line -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp"
+            android:layout_gravity="start">
+
+            <EditText
+                android:id="@+id/positionInput"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:hint="Position"
+                android:inputType="number"
+                android:maxLength="2" />
+
+            <TextView
+                android:id="@+id/trayText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" - Tray:"
+                android:layout_marginStart="12dp"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Add additional tray button -->
+        <Button
+            android:id="@+id/addTrayButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ Additional Tray"
+            android:layout_marginBottom="24dp"
+            android:enabled="false" />
+
+        <!-- Scan count -->
+        <TextView
+            android:id="@+id/counterText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scanned: 0 trays on 0 shelves"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Control buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/nextShelfButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Scan Next Shelf"
+                android:layout_marginEnd="16dp"
+                android:enabled="false" />
+
+            <Button
+                android:id="@+id/endSessionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="End Shelving Session" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
