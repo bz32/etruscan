@@ -33,6 +33,7 @@ proguard/
 
 # Android Studio files
 .idea/
+.idea/misc.xml
 *.iml
 *.iws
 *.ipr
