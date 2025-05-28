@@ -1,4 +1,4 @@
-package com.example.refileapp
+package org.recaplib.etruscan
 
 import org.junit.Test
 

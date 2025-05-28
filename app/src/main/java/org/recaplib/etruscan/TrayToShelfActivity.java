@@ -1,4 +1,4 @@
-package com.example.refileapp;
+package org.recaplib.etruscan;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -246,7 +245,7 @@ public class TrayToShelfActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         IntentFilter filter = new IntentFilter();
-        filter.addAction("com.example.refileapp.SCAN");  // Must match DataWedge Intent Action
+        filter.addAction("org.recaplib.etruscan.SCAN");  // Must match DataWedge Intent Action
         registerReceiver(scanReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
 

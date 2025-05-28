@@ -1,8 +1,7 @@
-package com.example.refileapp;
+package org.recaplib.etruscan;
 
 import android.content.*;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -16,9 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
@@ -161,7 +157,7 @@ public class RefileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter filter = new IntentFilter("com.example.refileapp.SCAN");
+        IntentFilter filter = new IntentFilter("org.recaplib.etruscan.SCAN");
         registerReceiver(scanReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
 

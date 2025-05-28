@@ -1,4 +1,4 @@
-package com.example.refileapp;
+package org.recaplib.etruscan;
 
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 
 public class KeystoreHelper {
-    private static final String KEY_ALIAS = "com.example.refileapp.KEY_ALIAS";
+    private static final String KEY_ALIAS = "org.recaplib.etruscan.KEY_ALIAS";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
     private static final String ANDROID_KEYSTORE = "AndroidKeyStore";
 

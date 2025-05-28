@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.refileapp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -8,14 +7,14 @@
 
     <application
         android:allowBackup="true"
-        android:label="RefileApp"
+        android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
 
-        <activity android:name=".UploadActivity" />
-        <activity android:name=".RefileActivity" />
+        <activity android:name="org.recaplib.etruscan.UploadActivity" />
+        <activity android:name="org.recaplib.etruscan.RefileActivity" />
 
         <activity
-            android:name=".TrayToShelfActivity"
+            android:name="org.recaplib.etruscan.TrayToShelfActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.symbol.datawedge.api.RESULT_ACTION" />
@@ -23,7 +22,7 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name="org.recaplib.etruscan.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

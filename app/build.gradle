@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.refileapp'
+    namespace 'org.recaplib.etruscan'
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.example.refileapp"
+        applicationId "org.recaplib.etruscan"
         minSdk 30
         targetSdk 35
         versionCode 1

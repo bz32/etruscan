@@ -1,4 +1,4 @@
-package com.example.refileapp;
+package org.recaplib.etruscan;
 
 import android.content.Intent;
 import android.os.Bundle;

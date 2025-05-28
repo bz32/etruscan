@@ -1,4 +1,4 @@
-package com.example.refileapp;
+package org.recaplib.etruscan;
 
 import android.os.Environment;
 import android.util.Log;
@@ -12,12 +12,12 @@ import java.util.Locale;
 
 public class FileHelper {
 
-    private static final String APP_FOLDER_NAME = "RefileApp";
+    private static final String APP_FOLDER_NAME = "etruscan";
     private static final String REFILE_FILENAME = "refile.dat";
     private static final String SCANLOG_FILENAME = "scanlog.txt";
     private static final String T2SHELF_FILENAME = "t2shelf.dat";
 
-    // Get the app-specific folder (Documents/RefileApp)
+    // Get the app-specific folder (Documents/etruscan)
     public static File getAppDirectory() {
         File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), APP_FOLDER_NAME);
         if (!dir.exists()) {
