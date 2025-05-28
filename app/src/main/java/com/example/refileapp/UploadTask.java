@@ -1,16 +1,15 @@
 package com.example.refileapp;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.Environment;
-import android.content.Intent;
-import android.view.View;
-import android.widget.Toast;
-import android.widget.ProgressBar;
 import com.jcraft.jsch.*;
-
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +38,6 @@ public class UploadTask {
         this.listener = listener;
     }
 
-    // Upload method, now using ExecutorService
     public void upload() {
         // Notify activity about the upload start (UI updates handled in the activity)
         if (listener != null) {
@@ -55,17 +53,17 @@ public class UploadTask {
             if (listener != null) {
                 listener.onUploadFinished(result);
             }
-
         });
     }
 
     // Background task logic
     private String doUpload() {
-        File refileFile = FileHelper.getRefileFile();
 
-        if (!refileFile.exists()) {
-            return "Error: refile.dat not found.";
-        }
+        List<File> filesToUpload = new ArrayList<>();
+        if (FileHelper.getRefileFile().exists()) filesToUpload.add(FileHelper.getRefileFile());
+        if (FileHelper.getT2ShelfFile().exists()) filesToUpload.add(FileHelper.getT2ShelfFile());
+
+        if (filesToUpload.isEmpty()) return "No data files found to upload.";
 
         Session session = null;
         Channel channel = null;
@@ -75,9 +73,8 @@ public class UploadTask {
             session = jsch.getSession(username, server, port);
             session.setPassword(password);
 
-            // Recommended config for SFTP
             Properties config = new Properties();
-            config.put("StrictHostKeyChecking", "no");  // For testing; in production you may want to verify host keys
+            config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
 
             session.connect();
@@ -87,10 +84,19 @@ public class UploadTask {
 
             ChannelSftp sftp = (ChannelSftp) channel;
 
-            FileInputStream fis = new FileInputStream(refileFile);
             sftp.cd(remotePath);  // Ensure this exists on server
-            sftp.put(fis, "refile.dat");
-            fis.close();
+
+            for (File file : filesToUpload) {
+                FileInputStream fis = new FileInputStream(file);
+                sftp.put(fis, file.getName());
+                fis.close();
+
+                String newName = file.getName().replace(".dat", "-" + timestamp() + ".dat");
+                File renamed = new File(file.getParent(), newName);
+                if (!file.renameTo(renamed)) {
+                    return "Upload succeeded but failed to rename " + file.getName();
+                }
+            }
 
             return "Upload successful.";
 
@@ -100,5 +106,9 @@ public class UploadTask {
             if (channel != null && channel.isConnected()) channel.disconnect();
             if (session != null && session.isConnected()) session.disconnect();
         }
+    }
+
+    private String timestamp() {
+        return new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
     }
 }

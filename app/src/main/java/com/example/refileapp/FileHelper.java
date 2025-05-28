@@ -59,11 +59,20 @@ public class FileHelper {
         }
     }
 
-
     // Optional: generic helper to get any file inside the app directory
     public static File getAppFile(String filename) {
         return new File(getAppDirectory(), filename);
     }
 
+    public static boolean archiveFile(File file) {
+        if (!file.exists()) return false;
+
+        String name = file.getName();
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        String newName = name.replace(".dat", "-" + timestamp + ".dat");
+        File newFile = new File(file.getParent(), newName);
+
+        return file.renameTo(newFile);
+    }
 
 }

@@ -40,21 +40,36 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
 
         usernameInput = findViewById(R.id.usernameInput);
         passwordInput = findViewById(R.id.passwordInput);
+        progressBar = findViewById(R.id.progress_bar);
 
         TextView uploadMessage = findViewById(R.id.upload_message);
         Button yesButton = findViewById(R.id.button_upload_yes);
         Button cancelButton = findViewById(R.id.button_upload_cancel);
-        progressBar = findViewById(R.id.progress_bar);
 
-        // Show last modified time of refile.dat
 
-        File refileFile = FileHelper.getRefileFile();
-        String timestamp = "Unknown";
-        if (refileFile.exists()) {
-            long lastModified = refileFile.lastModified();
-            timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date(lastModified));
+        // Show info for files to be uploaded
+        File refile = FileHelper.getRefileFile();
+        File t2shelf = FileHelper.getT2ShelfFile();
+
+        StringBuilder messageBuilder = new StringBuilder("Provide your credentials to upload the following file(s) to LAS:\n");
+
+        boolean foundFile = false;
+        if (refile.exists()) {
+            String ts = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date(refile.lastModified()));
+            messageBuilder.append("• refile.dat (last updated ").append(ts).append(")\n");
+            foundFile = true;
         }
-        uploadMessage.setText("Provide your credentials to upload the file refile.dat last updated " + timestamp + " to LAS.");
+        if (t2shelf.exists()) {
+            String ts = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date(t2shelf.lastModified()));
+            messageBuilder.append("• t2shelf.dat (last updated ").append(ts).append(")\n");
+            foundFile = true;
+        }
+        if (!foundFile) {
+            messageBuilder = new StringBuilder("No uploadable .dat files found. Please return and perform scans first.");
+            yesButton.setEnabled(false);
+        }
+
+        uploadMessage.setText(messageBuilder.toString());
 
         yesButton.setOnClickListener(v -> {
             if (!isWifiConnected()) {
