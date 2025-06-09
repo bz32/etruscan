@@ -28,7 +28,6 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
     private EditText usernameInput, passwordInput;
     private String ftpServer;
     private int ftpPort;
-    private String ftpUploadPath;
     private ProgressBar progressBar;
 
     @Override
@@ -84,6 +83,9 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
             // Save the password securely
             savePassword(password);
 
+            // Construct dynamic upload path based on entered username
+            String ftpUploadPath = "/home/" + username;
+
             // Proceed with upload
             progressBar.setVisibility(View.VISIBLE);
             // Pass the current context (UploadActivity) as the listener to receive upload notifications
@@ -111,9 +113,8 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
             props.load(is);
             ftpServer = props.getProperty("ftp_server");
             ftpPort = Integer.parseInt(props.getProperty("ftp_port"));
-            ftpUploadPath = props.getProperty("ftp_upload_path");
 
-            Log.d("CONFIG", "FTP Config loaded: " + ftpServer + ":" + ftpPort + ftpUploadPath);
+            Log.d("CONFIG", "FTP Config loaded: " + ftpServer + ":" + ftpPort);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to load FTP config", Toast.LENGTH_LONG).show();
