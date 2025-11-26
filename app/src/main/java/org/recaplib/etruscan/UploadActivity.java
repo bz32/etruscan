@@ -171,8 +171,9 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
                     uploadTask.upload();
                 });
             }).start();
-            //cancelButton.setOnClickListener(v -> finish());
         });
+
+        cancelButton.setOnClickListener(v -> finish());
     }
 
     private boolean isWifiConnected() {
