@@ -14,9 +14,14 @@ import android.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.io.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RefileActivity extends AppCompatActivity {
 
@@ -28,6 +33,11 @@ public class RefileActivity extends AppCompatActivity {
     private TextView trayText, countText, itemText;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+
+    private RecyclerView summaryRecyclerView;
+    private ScanPairAdapter scanPairAdapter;
+    private List<ScanPair> scanPairs = new ArrayList<>();
+
 
     private final BroadcastReceiver scanReceiver = new BroadcastReceiver() {
         @Override
@@ -63,6 +73,8 @@ public class RefileActivity extends AppCompatActivity {
                 itemText.setText("Item: " + cleanedItem);
                 itemCount++;
                 countText.setText("Items Scanned: " + itemCount);
+
+                addScan(currentTray, cleanedItem);
 
                 // Auto-clear the item text after 2 seconds
                 handler.postDelayed(() -> itemText.setText("Item: (scan item)"), 2000);
@@ -111,6 +123,13 @@ public class RefileActivity extends AppCompatActivity {
         countText = findViewById(R.id.text_count);
         itemText = findViewById(R.id.text_item);
         Button endBtn = findViewById(R.id.button_end);
+
+        summaryRecyclerView = findViewById(R.id.refile_summary_list);
+        scanPairs = new ArrayList<>();
+        scanPairAdapter = new ScanPairAdapter(scanPairs);
+
+        summaryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        summaryRecyclerView.setAdapter(scanPairAdapter);
 
         endBtn.setOnClickListener(v -> {
             closeWriter();
@@ -165,6 +184,15 @@ public class RefileActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(scanReceiver);
+    }
+
+    private void addScan(String tray, String item) {
+        // Insert at the start of the list
+        scanPairs.add(0, new ScanPair(tray, item));
+        scanPairAdapter.notifyItemInserted(0);
+
+        // Optionally scroll to the top so the newest item is visible
+        summaryRecyclerView.scrollToPosition(0);
     }
 
     @Override
