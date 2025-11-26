@@ -10,6 +10,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Instruction Text -->
+        <TextView
+            android:id="@+id/instructionsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Scan shelf, then enter position (00-99), then scan tray. To add more than one tray to the same shelf use the +Additional Tray option."
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
         <!-- Current shelf barcode -->
         <TextView
             android:id="@+id/shelfText"

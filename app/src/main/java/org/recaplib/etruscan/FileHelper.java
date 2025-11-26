@@ -3,6 +3,8 @@ package org.recaplib.etruscan;
 import android.os.Environment;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileWriter;
@@ -73,6 +75,22 @@ public class FileHelper {
         File newFile = new File(file.getParent(), newName);
 
         return file.renameTo(newFile);
+    }
+
+    public static String readFileContents(File f) {
+        StringBuilder sb = new StringBuilder();
+        if (f == null || !f.exists()) return "(file not found)";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            Log.e("FileHelper", "readFileContents failed for " + f.getAbsolutePath(), e);
+            return "(Error reading file: " + e.getMessage() + ")";
+        }
+        return sb.toString();
     }
 
 }
