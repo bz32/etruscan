@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [v1.4] - 2026-06-10
+### Added
+- Scrollable list of scanned tray-item pairs displayed in real time during refile sessions
+- Refile and tray-to-shelf sessions now pre-populate scan list and counters from existing `.dat` files on launch, so prior scans from the same upload cycle remain visible when reopening a session
+- "View Scan Log" button on the upload screen
+
+### Fixed
+- Rotating the device mid-session no longer loses scanned data; orientation is locked to whichever mode is active when the session starts, with `onSaveInstanceState` as a secondary backstop
+- Resolved EACCES permission errors when reading files on Android 11+ by moving storage from `Documents/etruscan/` to app-specific external storage (`Android/data/org.recaplib.etruscan/files/etruscan/`), eliminating the need for runtime storage permissions
+
+### Changed
+- Upload screen updated with clickable file preview links and VPN connectivity check before authenticating
+- Fixed broken Cancel button on upload screen
+- Upload path is now derived dynamically from the entered username
+
 ## [v1.3] - 2025-05-28
 ### Changed
 - Renamed the app from **RefileApp** to **Etruscan**
