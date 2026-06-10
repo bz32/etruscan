@@ -1,6 +1,8 @@
 package org.recaplib.etruscan;
 
 import android.content.*;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -117,6 +119,9 @@ public class RefileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+                ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_refile);
 
         trayText = findViewById(R.id.text_tray);
@@ -136,7 +141,66 @@ public class RefileActivity extends AppCompatActivity {
             finish();
         });
 
+        if (savedInstanceState != null) {
+            currentTray = savedInstanceState.getString("currentTray");
+            itemCount = savedInstanceState.getInt("itemCount", 0);
+            ArrayList<String> trays = savedInstanceState.getStringArrayList("scanPairTrays");
+            ArrayList<String> items = savedInstanceState.getStringArrayList("scanPairItems");
+            if (trays != null && items != null) {
+                for (int i = 0; i < trays.size(); i++) {
+                    scanPairs.add(new ScanPair(trays.get(i), items.get(i)));
+                }
+                scanPairAdapter.notifyDataSetChanged();
+            }
+            trayText.setText(currentTray != null ? "Tray: " + currentTray : "Tray: (scan tray)");
+            countText.setText("Items Scanned: " + itemCount);
+        } else {
+            loadExistingScans();
+        }
+
         setupFile();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentTray", currentTray);
+        outState.putInt("itemCount", itemCount);
+        ArrayList<String> trays = new ArrayList<>();
+        ArrayList<String> items = new ArrayList<>();
+        for (ScanPair pair : scanPairs) {
+            trays.add(pair.tray);
+            items.add(pair.item);
+        }
+        outState.putStringArrayList("scanPairTrays", trays);
+        outState.putStringArrayList("scanPairItems", items);
+    }
+
+    private void loadExistingScans() {
+        File refileFile = FileHelper.getRefileFile();
+        if (!refileFile.exists()) return;
+        try (BufferedReader reader = new BufferedReader(new FileReader(refileFile))) {
+            List<ScanPair> loaded = new ArrayList<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Format: REF{tray}#{item}
+                if (line.startsWith("REF") && line.contains("#")) {
+                    String[] parts = line.substring(3).split("#", 2);
+                    if (parts.length == 2) {
+                        loaded.add(new ScanPair(parts[0], parts[1]));
+                    }
+                }
+            }
+            // Show newest first, matching the scan-time insertion order
+            for (int i = loaded.size() - 1; i >= 0; i--) {
+                scanPairs.add(loaded.get(i));
+            }
+            itemCount = loaded.size();
+            scanPairAdapter.notifyDataSetChanged();
+            countText.setText("Items Scanned: " + itemCount);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupFile() {
