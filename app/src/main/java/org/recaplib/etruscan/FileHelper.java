@@ -1,6 +1,6 @@
 package org.recaplib.etruscan;
 
-import android.os.Environment;
+import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -19,13 +19,15 @@ public class FileHelper {
     private static final String SCANLOG_FILENAME = "scanlog.txt";
     private static final String T2SHELF_FILENAME = "t2shelf.dat";
 
-    // Get the app-specific folder (Documents/etruscan)
+    private static File appDirectory;
+
+    public static void init(Context context) {
+        appDirectory = new File(context.getExternalFilesDir(null), APP_FOLDER_NAME);
+        if (!appDirectory.exists()) appDirectory.mkdirs();
+    }
+
     public static File getAppDirectory() {
-        File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), APP_FOLDER_NAME);
-        if (!dir.exists()) {
-            dir.mkdirs();  // Ensure the directory exists
-        }
-        return dir;
+        return appDirectory;
     }
 
     // Get the full path to refile.dat

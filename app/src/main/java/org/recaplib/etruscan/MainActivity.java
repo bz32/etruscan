@@ -9,6 +9,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FileHelper.init(this);
         setContentView(R.layout.activity_main);
 
         // Start Refile session

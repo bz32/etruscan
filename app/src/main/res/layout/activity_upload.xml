@@ -67,6 +67,13 @@
             android:text="Cancel" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/button_view_log"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="View Scan Log" />
+
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleLarge"

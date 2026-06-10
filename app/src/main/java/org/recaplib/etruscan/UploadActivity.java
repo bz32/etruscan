@@ -174,6 +174,9 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
         });
 
         cancelButton.setOnClickListener(v -> finish());
+
+        Button viewLogButton = findViewById(R.id.button_view_log);
+        viewLogButton.setOnClickListener(v -> showScanLog());
     }
 
     private boolean isWifiConnected() {
@@ -231,6 +234,16 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
             }
         }
         return null;
+    }
+
+    private void showScanLog() {
+        File logFile = FileHelper.getScanLogFile();
+        String contents = FileHelper.readFileContents(logFile);
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Scan Log")
+                .setMessage(contents.trim().isEmpty() ? "(Log is empty)" : contents)
+                .setPositiveButton("Close", null)
+                .show();
     }
 
     private interface FilePreviewClick {
