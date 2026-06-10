@@ -3,6 +3,8 @@ package org.recaplib.etruscan;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.BroadcastReceiver;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -19,6 +21,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 
 public class TrayToShelfActivity extends AppCompatActivity {
 
@@ -43,9 +46,11 @@ public class TrayToShelfActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+                ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_tray_to_shelf);
 
-        // UI elements
         shelfText = findViewById(R.id.shelfText);
         trayText = findViewById(R.id.trayText);
         counterText = findViewById(R.id.counterText);
@@ -54,10 +59,49 @@ public class TrayToShelfActivity extends AppCompatActivity {
         nextShelfButton = findViewById(R.id.nextShelfButton);
         endSessionButton = findViewById(R.id.endSessionButton);
 
+        if (savedInstanceState != null) {
+            currentShelfBarcode = savedInstanceState.getString("currentShelfBarcode", "");
+            traysOnCurrentShelf = savedInstanceState.getInt("traysOnCurrentShelf", 0);
+            totalTrays = savedInstanceState.getInt("totalTrays", 0);
+            totalShelves = savedInstanceState.getInt("totalShelves", 0);
+            scanState = ScanState.valueOf(savedInstanceState.getString("scanState", ScanState.WAITING_FOR_SHELF.name()));
+        } else {
+            loadExistingCounts();
+        }
+
         setupFile();
         setupUIHandlers();
         updateUIForState();
+        updateCounter();
+    }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentShelfBarcode", currentShelfBarcode);
+        outState.putInt("traysOnCurrentShelf", traysOnCurrentShelf);
+        outState.putInt("totalTrays", totalTrays);
+        outState.putInt("totalShelves", totalShelves);
+        outState.putString("scanState", scanState.name());
+    }
+
+    private void loadExistingCounts() {
+        File ttsFile = FileHelper.getT2ShelfFile();
+        if (!ttsFile.exists()) return;
+        try (BufferedReader reader = new BufferedReader(new FileReader(ttsFile))) {
+            HashSet<String> shelves = new HashSet<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Format: TTS{shelf6}{pos2}{tray}
+                if (line.startsWith("TTS") && line.length() > 9) {
+                    totalTrays++;
+                    shelves.add(line.substring(3, 9));
+                }
+            }
+            totalShelves = shelves.size();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupFile() {
