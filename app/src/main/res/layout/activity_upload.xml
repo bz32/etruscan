@@ -22,6 +22,13 @@
         android:layout_height="wrap_content"
         android:text="Checking files..."
         android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:id="@+id/files_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_marginBottom="16dp" />
 
     <EditText

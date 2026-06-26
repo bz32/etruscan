@@ -5,12 +5,11 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,8 +24,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 public class UploadActivity extends Activity implements UploadTask.UploadListener {
@@ -34,6 +37,7 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
     private String ftpServer;
     private int ftpPort;
     private ProgressBar progressBar;
+    private final Map<CheckBox, File> fileCheckboxes = new LinkedHashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +51,7 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
         progressBar = findViewById(R.id.progress_bar);
 
         TextView uploadMessage = findViewById(R.id.upload_message);
-        uploadMessage.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+        LinearLayout filesContainer = findViewById(R.id.files_container);
 
         Button yesButton = findViewById(R.id.button_upload_yes);
         Button cancelButton = findViewById(R.id.button_upload_cancel);
@@ -56,76 +60,32 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
         File refile = FileHelper.getRefileFile();
         File t2shelf = FileHelper.getT2ShelfFile();
 
-        SpannableStringBuilder message = new SpannableStringBuilder();
-        message.append("Provide your LAS server credentials to upload the following file(s) to LAS:\n\n");
-
         boolean foundFile = false;
-
-        // Helper for adding clickable preview entries
-        FilePreviewClick previewClick = f -> {
-            try {
-                String contents = FileHelper.readFileContents(f);
-                new androidx.appcompat.app.AlertDialog.Builder(UploadActivity.this)
-                        .setTitle(f.getName())
-                        .setMessage(contents.isEmpty() ? "(File is empty)" : contents)
-                        .setPositiveButton("Close", null)
-                        .show();
-            } catch (Exception e) {
-                new androidx.appcompat.app.AlertDialog.Builder(UploadActivity.this)
-                        .setTitle("Error")
-                        .setMessage("Unable to read file contents.")
-                        .setPositiveButton("Close", null)
-                        .show();
-            }
-        };
 
         if (refile.exists()) {
             foundFile = true;
-
-            String ts = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date(refile.lastModified()));
-
-            String line = "• refile.dat (last updated " + ts + ")\n";
-
-            int start = message.length();
-            message.append(line);
-
-            // make clickable span
-            ClickableSpan span = new ClickableSpan() {
-                @Override
-                public void onClick(View widget) {
-                    previewClick.onClick(refile);
-                }
-            };
-            message.setSpan(span, start, start + line.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            addFileRow(filesContainer, refile);
         }
 
         if (t2shelf.exists()) {
             foundFile = true;
-
-            String ts = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-                    .format(new Date(t2shelf.lastModified()));
-
-            String line = "• t2shelf.dat (last updated " + ts + ")\n";
-            int start = message.length();
-            message.append(line);
-
-            ClickableSpan span = new ClickableSpan() {
-                @Override
-                public void onClick(View widget) {
-                    previewClick.onClick(t2shelf);
-                }
-            };
-            message.setSpan(span, start, start + line.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            addFileRow(filesContainer, t2shelf);
         }
 
         if (!foundFile) {
             yesButton.setEnabled(false);
             uploadMessage.setText("No uploadable .dat files found. Please return and perform scans first.");
         } else {
-            uploadMessage.setText(message);
+            uploadMessage.setText("Provide your LAS server credentials to upload the checked file(s) to LAS. Tap a filename to preview its contents.");
         }
 
         yesButton.setOnClickListener(v -> {
+            List<File> selectedFiles = getSelectedFiles();
+            if (selectedFiles.isEmpty()) {
+                Toast.makeText(UploadActivity.this, "Check at least one file to upload.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             // First, check Wi-Fi on UI thread
             if (!isWifiConnected()) {
                 Toast.makeText(UploadActivity.this, "You must be on Wi-Fi to proceed.", Toast.LENGTH_LONG).show();
@@ -166,6 +126,7 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
                             ftpUploadPath,
                             username,
                             password,
+                            selectedFiles,
                             UploadActivity.this
                     );
                     uploadTask.upload();
@@ -177,6 +138,44 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
 
         Button viewLogButton = findViewById(R.id.button_view_log);
         viewLogButton.setOnClickListener(v -> showScanLog());
+    }
+
+    private void addFileRow(LinearLayout container, File file) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+        CheckBox checkBox = new CheckBox(this);
+        checkBox.setChecked(true);
+        fileCheckboxes.put(checkBox, file);
+
+        String ts = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date(file.lastModified()));
+        TextView label = new TextView(this);
+        label.setText(file.getName() + " (last updated " + ts + ")");
+        label.setTextSize(16);
+        label.setPadding(8, 0, 0, 0);
+        label.setOnClickListener(v -> {
+            String contents = FileHelper.readFileContents(file);
+            new androidx.appcompat.app.AlertDialog.Builder(UploadActivity.this)
+                    .setTitle(file.getName())
+                    .setMessage(contents.isEmpty() ? "(File is empty)" : contents)
+                    .setPositiveButton("Close", null)
+                    .show();
+        });
+
+        row.addView(checkBox);
+        row.addView(label);
+        container.addView(row);
+    }
+
+    private List<File> getSelectedFiles() {
+        List<File> selected = new ArrayList<>();
+        for (Map.Entry<CheckBox, File> entry : fileCheckboxes.entrySet()) {
+            if (entry.getKey().isChecked()) {
+                selected.add(entry.getValue());
+            }
+        }
+        return selected;
     }
 
     private boolean isWifiConnected() {
@@ -246,9 +245,6 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
                 .show();
     }
 
-    private interface FilePreviewClick {
-        void onClick(File file);
-    }
     @Override
     public void onUploadStarted() {
         runOnUiThread(() -> {

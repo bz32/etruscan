@@ -5,7 +5,6 @@ import com.jcraft.jsch.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +18,7 @@ public class UploadTask {
     private final String remotePath;
     private final String username;
     private final String password;
+    private final List<File> filesToUpload;
     private final Context context;
     private final UploadListener listener;  // listener to notify UploadActivity
 
@@ -27,13 +27,14 @@ public class UploadTask {
         void onUploadFinished(String result);
     }
 
-    public UploadTask(Context context, String server, int port, String remotePath, String username, String password, UploadListener listener) {
+    public UploadTask(Context context, String server, int port, String remotePath, String username, String password, List<File> filesToUpload, UploadListener listener) {
         this.context = context;
         this.server = server;
         this.port = port;
         this.remotePath = remotePath;
         this.username = username;
         this.password = password;
+        this.filesToUpload = filesToUpload;
         this.listener = listener;
     }
 
@@ -57,10 +58,6 @@ public class UploadTask {
 
     // Background task logic
     private String doUpload() {
-
-        List<File> filesToUpload = new ArrayList<>();
-        if (FileHelper.getRefileFile().exists()) filesToUpload.add(FileHelper.getRefileFile());
-        if (FileHelper.getT2ShelfFile().exists()) filesToUpload.add(FileHelper.getT2ShelfFile());
 
         if (filesToUpload.isEmpty()) return "No data files found to upload.";
 
