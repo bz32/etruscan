@@ -21,7 +21,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 public class TrayToShelfActivity extends AppCompatActivity {
 
@@ -35,6 +37,7 @@ public class TrayToShelfActivity extends AppCompatActivity {
     private int totalShelves = 0;
 
     private BufferedWriter writer;
+    private final Set<String> scannedTrays = new HashSet<>();
 
     private enum ScanState {
         WAITING_FOR_SHELF,
@@ -65,6 +68,8 @@ public class TrayToShelfActivity extends AppCompatActivity {
             totalTrays = savedInstanceState.getInt("totalTrays", 0);
             totalShelves = savedInstanceState.getInt("totalShelves", 0);
             scanState = ScanState.valueOf(savedInstanceState.getString("scanState", ScanState.WAITING_FOR_SHELF.name()));
+            ArrayList<String> savedTrays = savedInstanceState.getStringArrayList("scannedTrays");
+            if (savedTrays != null) scannedTrays.addAll(savedTrays);
         } else {
             loadExistingCounts();
         }
@@ -83,6 +88,7 @@ public class TrayToShelfActivity extends AppCompatActivity {
         outState.putInt("totalTrays", totalTrays);
         outState.putInt("totalShelves", totalShelves);
         outState.putString("scanState", scanState.name());
+        outState.putStringArrayList("scannedTrays", new ArrayList<>(scannedTrays));
     }
 
     private void loadExistingCounts() {
@@ -96,6 +102,7 @@ public class TrayToShelfActivity extends AppCompatActivity {
                 if (line.startsWith("TTS") && line.length() > 9) {
                     totalTrays++;
                     shelves.add(line.substring(3, 9));
+                    scannedTrays.add(line.substring(11));
                 }
             }
             totalShelves = shelves.size();
@@ -198,9 +205,16 @@ public class TrayToShelfActivity extends AppCompatActivity {
                     return;
                 }
 
+                if (scannedTrays.contains(scanned)) {
+                    Toast.makeText(this, "Tray " + scanned + " was already scanned this session", Toast.LENGTH_LONG).show();
+                    FileHelper.appendToLog("Duplicate tray scan rejected: " + scanned);
+                    return;
+                }
+
                 trayText.setText("Tray: " + scanned);
                 String line = "TTS" + currentShelfBarcode + position + scanned;
                 writeToFile(line);
+                scannedTrays.add(scanned);
                 FileHelper.appendToLog("Scanned tray " + scanned + " at position " + position + " on shelf " + currentShelfBarcode);
 
                 traysOnCurrentShelf++;
