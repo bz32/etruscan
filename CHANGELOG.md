@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [v1.5] - 2026-08-28
+### Added
+- New Item-to-Shelf session: scan a shelf, enter a numeric position, then scan items directly onto that shelf, writing records to a new `i2shelf.dat` file
+- Refile sessions now accept a shelf scan in addition to a tray scan; items refiled to a shelf are written to a new `boxref.dat` file (`BRF` prefix) alongside the existing tray-based `refile.dat` (`REF` prefix)
+- Upload screen picks up and offers `boxref.dat` and `i2shelf.dat` for upload alongside `refile.dat` and `t2shelf.dat`
+
+### Changed
+- "Start Refile-to-tray Session" button renamed to "Start Refile Session" to reflect the tray-or-shelf flow
+- Tray/shelf/position/item barcode validation extracted into a shared `BarcodeUtils` class, removing duplicated regex logic from the Refile and Tray-to-Shelf screens
+- Refile and Item-to-Shelf scan summaries now share a single generalized `SummaryAdapter`, replacing the tray-only `ScanPairAdapter`
+
 ## [v1.4] - 2026-06-10
 ### Added
 - Scrollable list of scanned tray-item pairs displayed in real time during refile sessions
