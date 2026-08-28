@@ -28,17 +28,20 @@ import java.util.List;
 public class RefileActivity extends AppCompatActivity {
 
     private String currentTray = null;
+    private String currentShelf = null;
     private int itemCount = 0;
     private File file;
+    private File boxFile;
     private BufferedWriter writer;
+    private BufferedWriter boxWriter;
 
     private TextView trayText, countText, itemText;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private RecyclerView summaryRecyclerView;
-    private ScanPairAdapter scanPairAdapter;
-    private List<ScanPair> scanPairs = new ArrayList<>();
+    private SummaryAdapter<RefileEntry> summaryAdapter;
+    private List<RefileEntry> entries = new ArrayList<>();
 
 
     private final BroadcastReceiver scanReceiver = new BroadcastReceiver() {
@@ -47,20 +50,24 @@ public class RefileActivity extends AppCompatActivity {
             String scanned = intent.getStringExtra("com.symbol.datawedge.data_string");
             if (scanned == null || scanned.isEmpty()) return;
 
-            if (currentTray == null) {
-                // Validate tray format: two letters + 5-6 digits
-                if (scanned.matches("(?i)^[A-Z]{2}\\d{5,6}$")) {
-                    currentTray = scanned.toUpperCase();
+            if (currentTray == null && currentShelf == null) {
+                String upper = scanned.toUpperCase();
+                if (BarcodeUtils.validateTray(upper)) {
+                    currentTray = upper;
                     trayText.setText("Tray: " + currentTray);
                     FileHelper.appendToLog("Tray scanned: " + scanned + " - VALID");
+                } else if (BarcodeUtils.validateShelf(scanned)) {
+                    currentShelf = scanned;
+                    trayText.setText("Shelf: " + currentShelf);
+                    FileHelper.appendToLog("Shelf scanned: " + scanned + " - VALID");
                 } else {
-                    trayText.setText("Invalid tray barcode: " + scanned);
-                    FileHelper.appendToLog("Tray scanned: " + scanned + " - INVALID");
-                    playErrorTone(); // 👈 Play bonk for invalid tray
-                    handler.postDelayed(() -> trayText.setText("Tray: (scan tray)"), 2000);
+                    trayText.setText("Invalid tray/shelf barcode: " + scanned);
+                    FileHelper.appendToLog("Tray/shelf scanned: " + scanned + " - INVALID");
+                    playErrorTone(); // 👈 Play bonk for invalid tray/shelf
+                    handler.postDelayed(() -> trayText.setText("Tray/Shelf: (scan tray or shelf)"), 2000);
                 }
             } else {
-                String cleanedItem = cleanItemBarcode(scanned);
+                String cleanedItem = BarcodeUtils.cleanItemBarcode(scanned);
                 Log.d("SCAN", "Scanned item: " + scanned + ", cleaned: " + cleanedItem);
                 if (cleanedItem == null) {
                     Toast.makeText(context, "Invalid item barcode", Toast.LENGTH_SHORT).show();
@@ -70,51 +77,29 @@ public class RefileActivity extends AppCompatActivity {
                 }
                 FileHelper.appendToLog("Item scanned: " + scanned + " - VALID (cleaned: " + cleanedItem + ")");
 
-                String line = "REF" + currentTray + "#" + cleanedItem;
-                writeToFile(line);
+                if (currentTray != null) {
+                    String line = "REF" + currentTray + "#" + cleanedItem;
+                    writeToFile(writer, line);
+                    addEntry("Tray", currentTray, cleanedItem);
+                } else {
+                    String line = "BRF" + currentShelf + "#" + cleanedItem;
+                    writeToFile(boxWriter, line);
+                    addEntry("Shelf", currentShelf, cleanedItem);
+                }
+
                 itemText.setText("Item: " + cleanedItem);
                 itemCount++;
                 countText.setText("Items Scanned: " + itemCount);
-
-                addScan(currentTray, cleanedItem);
 
                 // Auto-clear the item text after 2 seconds
                 handler.postDelayed(() -> itemText.setText("Item: (scan item)"), 2000);
 
                 currentTray = null;
-                trayText.setText("Tray: (scan tray)");
+                currentShelf = null;
+                trayText.setText("Tray/Shelf: (scan tray or shelf)");
             }
         }
     };
-
-    private String cleanItemBarcode(String raw) {
-        if (raw == null) return null;
-
-        // Codabar: possibly surrounded by non-digit start/stop characters
-        if (raw.matches("^[A-D][0-9]{6,20}[A-D]$")) {
-            // Remove first and last characters
-            return raw.substring(1, raw.length() - 1);
-        }
-
-        // Codabar without start/stop: just digits, 6–20 digits
-        if (raw.matches("^[0-9]{6,20}$")) {
-            return raw;
-        }
-
-        // Code 39: allow letters, digits, and -.$/+% (but we’ll treat it loosely)
-        if (raw.matches("^[A-Z0-9-\\. $/+%]{6,20}$")) {
-            return raw;
-        }
-
-        // 6-character alphanumeric
-        if (raw.matches("^[A-Z0-9]{6}$")) {
-            return raw;
-        }
-
-        // If it doesn’t match any known pattern, return null to indicate invalid
-        return null;
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,11 +115,11 @@ public class RefileActivity extends AppCompatActivity {
         Button endBtn = findViewById(R.id.button_end);
 
         summaryRecyclerView = findViewById(R.id.refile_summary_list);
-        scanPairs = new ArrayList<>();
-        scanPairAdapter = new ScanPairAdapter(scanPairs);
+        entries = new ArrayList<>();
+        summaryAdapter = new SummaryAdapter<>(entries);
 
         summaryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        summaryRecyclerView.setAdapter(scanPairAdapter);
+        summaryRecyclerView.setAdapter(summaryAdapter);
 
         endBtn.setOnClickListener(v -> {
             closeWriter();
@@ -143,16 +128,24 @@ public class RefileActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             currentTray = savedInstanceState.getString("currentTray");
+            currentShelf = savedInstanceState.getString("currentShelf");
             itemCount = savedInstanceState.getInt("itemCount", 0);
-            ArrayList<String> trays = savedInstanceState.getStringArrayList("scanPairTrays");
-            ArrayList<String> items = savedInstanceState.getStringArrayList("scanPairItems");
-            if (trays != null && items != null) {
-                for (int i = 0; i < trays.size(); i++) {
-                    scanPairs.add(new ScanPair(trays.get(i), items.get(i)));
+            ArrayList<String> types = savedInstanceState.getStringArrayList("entryTypes");
+            ArrayList<String> containerIds = savedInstanceState.getStringArrayList("entryContainerIds");
+            ArrayList<String> items = savedInstanceState.getStringArrayList("entryItems");
+            if (types != null && containerIds != null && items != null) {
+                for (int i = 0; i < types.size(); i++) {
+                    entries.add(new RefileEntry(types.get(i), containerIds.get(i), items.get(i)));
                 }
-                scanPairAdapter.notifyDataSetChanged();
+                summaryAdapter.notifyDataSetChanged();
             }
-            trayText.setText(currentTray != null ? "Tray: " + currentTray : "Tray: (scan tray)");
+            if (currentTray != null) {
+                trayText.setText("Tray: " + currentTray);
+            } else if (currentShelf != null) {
+                trayText.setText("Shelf: " + currentShelf);
+            } else {
+                trayText.setText("Tray/Shelf: (scan tray or shelf)");
+            }
             countText.setText("Items Scanned: " + itemCount);
         } else {
             loadExistingScans();
@@ -165,42 +158,54 @@ public class RefileActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("currentTray", currentTray);
+        outState.putString("currentShelf", currentShelf);
         outState.putInt("itemCount", itemCount);
-        ArrayList<String> trays = new ArrayList<>();
+        ArrayList<String> types = new ArrayList<>();
+        ArrayList<String> containerIds = new ArrayList<>();
         ArrayList<String> items = new ArrayList<>();
-        for (ScanPair pair : scanPairs) {
-            trays.add(pair.tray);
-            items.add(pair.item);
+        for (RefileEntry entry : entries) {
+            types.add(entry.containerType);
+            containerIds.add(entry.containerId);
+            items.add(entry.item);
         }
-        outState.putStringArrayList("scanPairTrays", trays);
-        outState.putStringArrayList("scanPairItems", items);
+        outState.putStringArrayList("entryTypes", types);
+        outState.putStringArrayList("entryContainerIds", containerIds);
+        outState.putStringArrayList("entryItems", items);
     }
 
     private void loadExistingScans() {
-        File refileFile = FileHelper.getRefileFile();
-        if (!refileFile.exists()) return;
-        try (BufferedReader reader = new BufferedReader(new FileReader(refileFile))) {
-            List<ScanPair> loaded = new ArrayList<>();
+        List<RefileEntry> loaded = new ArrayList<>();
+        loaded.addAll(readEntries(FileHelper.getRefileFile(), "REF", "Tray"));
+        loaded.addAll(readEntries(FileHelper.getBoxRefFile(), "BRF", "Shelf"));
+
+        // Show newest first; cross-file chronological order can't be recovered exactly
+        // since neither file records timestamps, so trays and shelves are each kept in
+        // their own file order.
+        for (int i = loaded.size() - 1; i >= 0; i--) {
+            entries.add(loaded.get(i));
+        }
+        itemCount = loaded.size();
+        summaryAdapter.notifyDataSetChanged();
+        countText.setText("Items Scanned: " + itemCount);
+    }
+
+    private List<RefileEntry> readEntries(File f, String prefix, String label) {
+        List<RefileEntry> result = new ArrayList<>();
+        if (!f.exists()) return result;
+        try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // Format: REF{tray}#{item}
-                if (line.startsWith("REF") && line.contains("#")) {
-                    String[] parts = line.substring(3).split("#", 2);
+                if (line.startsWith(prefix) && line.contains("#")) {
+                    String[] parts = line.substring(prefix.length()).split("#", 2);
                     if (parts.length == 2) {
-                        loaded.add(new ScanPair(parts[0], parts[1]));
+                        result.add(new RefileEntry(label, parts[0], parts[1]));
                     }
                 }
             }
-            // Show newest first, matching the scan-time insertion order
-            for (int i = loaded.size() - 1; i >= 0; i--) {
-                scanPairs.add(loaded.get(i));
-            }
-            itemCount = loaded.size();
-            scanPairAdapter.notifyDataSetChanged();
-            countText.setText("Items Scanned: " + itemCount);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return result;
     }
 
     private void setupFile() {
@@ -209,16 +214,19 @@ public class RefileActivity extends AppCompatActivity {
             File dir = file.getParentFile();
             if (!dir.exists()) dir.mkdirs();
             writer = new BufferedWriter(new FileWriter(file, true));
+
+            boxFile = FileHelper.getBoxRefFile();
+            boxWriter = new BufferedWriter(new FileWriter(boxFile, true));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void writeToFile(String line) {
+    private void writeToFile(BufferedWriter w, String line) {
         try {
-            writer.write(line);
-            writer.newLine();
-            writer.flush();
+            w.write(line);
+            w.newLine();
+            w.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -227,6 +235,7 @@ public class RefileActivity extends AppCompatActivity {
     private void closeWriter() {
         try {
             if (writer != null) writer.close();
+            if (boxWriter != null) boxWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -250,10 +259,10 @@ public class RefileActivity extends AppCompatActivity {
         unregisterReceiver(scanReceiver);
     }
 
-    private void addScan(String tray, String item) {
+    private void addEntry(String containerType, String containerId, String item) {
         // Insert at the start of the list
-        scanPairs.add(0, new ScanPair(tray, item));
-        scanPairAdapter.notifyItemInserted(0);
+        entries.add(0, new RefileEntry(containerType, containerId, item));
+        summaryAdapter.notifyItemInserted(0);
 
         // Optionally scroll to the top so the newest item is visible
         summaryRecyclerView.scrollToPosition(0);

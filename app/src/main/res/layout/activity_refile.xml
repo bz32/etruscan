@@ -8,7 +8,7 @@
 
     <TextView
         android:id="@+id/text_tray"
-        android:text="Tray: (scan tray)"
+        android:text="Tray/Shelf: (scan tray or shelf)"
         android:textSize="18sp"
         android:layout_marginBottom="10dp"
         android:layout_width="wrap_content"

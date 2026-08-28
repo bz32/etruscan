@@ -58,7 +58,9 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
 
         // Show info for files to be uploaded
         File refile = FileHelper.getRefileFile();
+        File boxref = FileHelper.getBoxRefFile();
         File t2shelf = FileHelper.getT2ShelfFile();
+        File i2shelf = FileHelper.getI2ShelfFile();
 
         boolean foundFile = false;
 
@@ -67,9 +69,19 @@ public class UploadActivity extends Activity implements UploadTask.UploadListene
             addFileRow(filesContainer, refile);
         }
 
+        if (boxref.exists()) {
+            foundFile = true;
+            addFileRow(filesContainer, boxref);
+        }
+
         if (t2shelf.exists()) {
             foundFile = true;
             addFileRow(filesContainer, t2shelf);
+        }
+
+        if (i2shelf.exists()) {
+            foundFile = true;
+            addFileRow(filesContainer, i2shelf);
         }
 
         if (!foundFile) {

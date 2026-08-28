@@ -16,8 +16,10 @@ public class FileHelper {
 
     private static final String APP_FOLDER_NAME = "etruscan";
     private static final String REFILE_FILENAME = "refile.dat";
+    private static final String BOXREF_FILENAME = "boxref.dat";
     private static final String SCANLOG_FILENAME = "scanlog.txt";
     private static final String T2SHELF_FILENAME = "t2shelf.dat";
+    private static final String I2SHELF_FILENAME = "i2shelf.dat";
 
     private static File appDirectory;
 
@@ -35,6 +37,11 @@ public class FileHelper {
         return new File(getAppDirectory(), REFILE_FILENAME);
     }
 
+    // Get the full path to boxref.dat (refiles of non-tray items directly to shelves)
+    public static File getBoxRefFile() {
+        return new File(getAppDirectory(), BOXREF_FILENAME);
+    }
+
     // Get the full path to scanlog.txt
     public static File getScanLogFile() {
         return new File(getAppDirectory(), SCANLOG_FILENAME);
@@ -43,6 +50,11 @@ public class FileHelper {
     // Get the full path to t2shelf.dat
     public static File getT2ShelfFile() {
         return new File(getAppDirectory(), T2SHELF_FILENAME);
+    }
+
+    // Get the full path to i2shelf.dat
+    public static File getI2ShelfFile() {
+        return new File(getAppDirectory(), I2SHELF_FILENAME);
     }
     public static void appendToLog(String message) {
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date());

@@ -178,7 +178,7 @@ public class TrayToShelfActivity extends AppCompatActivity {
     private void handleScannedBarcode(String scanned) {
         switch (scanState) {
             case WAITING_FOR_SHELF:
-                if (!validateShelf(scanned)) {
+                if (!BarcodeUtils.validateShelf(scanned)) {
                     Toast.makeText(this, "Invalid shelf barcode", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -195,12 +195,12 @@ public class TrayToShelfActivity extends AppCompatActivity {
 
             case WAITING_FOR_TRAY:
                 String position = positionInput.getText().toString().trim();
-                if (!validatePosition(position)) {
+                if (!BarcodeUtils.validatePosition(position)) {
                     Toast.makeText(this, "Enter valid shelf position (00-99) before scanning tray", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (!validateTray(scanned)) {
+                if (!BarcodeUtils.validateTray(scanned)) {
                     Toast.makeText(this, "Invalid tray barcode", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -273,18 +273,6 @@ public class TrayToShelfActivity extends AppCompatActivity {
 
                 break;
         }
-    }
-
-    private boolean validatePosition(String pos) {
-        return pos.matches("\\d{2}");
-    }
-
-    private boolean validateTray(String tray) {
-        return tray.matches("[A-Z]{2}\\d{5,6}");
-    }
-
-    private boolean validateShelf(String shelf) {
-        return shelf.matches("\\d{5,6}");
     }
 
     private final BroadcastReceiver scanReceiver = new BroadcastReceiver() {

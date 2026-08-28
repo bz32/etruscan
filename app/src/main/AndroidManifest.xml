@@ -10,6 +10,7 @@
 
         <activity android:name="org.recaplib.etruscan.UploadActivity" />
         <activity android:name="org.recaplib.etruscan.RefileActivity" />
+        <activity android:name="org.recaplib.etruscan.ItemToShelfActivity" />
 
         <activity
             android:name="org.recaplib.etruscan.TrayToShelfActivity"

@@ -26,6 +26,13 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Start Item-to-shelf session
+        Button startItemToShelfButton = findViewById(R.id.button_start_item_to_shelf);
+        startItemToShelfButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ItemToShelfActivity.class);
+            startActivity(intent);
+        });
+
         // Upload to LAS
         Button uploadButton = findViewById(R.id.button_upload_las);
         uploadButton.setOnClickListener(v -> {

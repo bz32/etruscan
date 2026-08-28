@@ -20,7 +20,7 @@
         android:id="@+id/button_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start Refile-to-tray Session" />
+        android:text="Start Refile Session" />
 
     <Button
         android:id="@+id/button_start_tray_to_shelf"
@@ -28,6 +28,14 @@
         android:layout_height="wrap_content"
         android:text="Start Tray-to-shelf Session"
         android:layout_margin="16dp"
+        android:layout_gravity="center"
+        />
+
+    <Button
+        android:id="@+id/button_start_item_to_shelf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Item-to-shelf Session"
         android:layout_gravity="center"
         />
 

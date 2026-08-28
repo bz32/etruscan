@@ -6,12 +6,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
-public class ScanPairAdapter extends RecyclerView.Adapter<ScanPairAdapter.ViewHolder> {
+public class SummaryAdapter<T> extends RecyclerView.Adapter<SummaryAdapter.ViewHolder> {
 
-    private final List<ScanPair> scanPairs;
+    private final List<T> items;
 
-    public ScanPairAdapter(List<ScanPair> scanPairs) {
-        this.scanPairs = scanPairs;
+    public SummaryAdapter(List<T> items) {
+        this.items = items;
     }
 
     @NonNull
@@ -25,13 +25,12 @@ public class ScanPairAdapter extends RecyclerView.Adapter<ScanPairAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ScanPair pair = scanPairs.get(position);
-        holder.textView.setText(pair.toString());
+        holder.textView.setText(items.get(position).toString());
     }
 
     @Override
     public int getItemCount() {
-        return scanPairs.size();
+        return items.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
