@@ -8,11 +8,11 @@ It was developed in partnership with AI.
 
 ## Features
 
-- **Support key operational processes**, including Refile and Tray-to-shelf activities
-- **Scan and capture item tray and shelf barcodes**
-- **Barcode format validation**: Ensure that tray and item barcodes meet required formats
+- **Support key operational processes**, including Refile, Tray-to-shelf, and Item-to-shelf activities
+- **Scan and capture item, tray, and shelf barcodes**
+- **Barcode format validation**: Ensure that tray, shelf, position, and item barcodes meet required formats
 - **Scan count**: Track on-screen how many items have been scanned in the session.
-- **Write captured data to files formatted for LAS processing**, including `refile.dat` and `t2shelf.dat`
+- **Write captured data to files formatted for LAS processing**, including `refile.dat`, `boxref.dat`, `t2shelf.dat`, and `i2shelf.dat`
 - **Upload to LAS capabilities**, securely depositing files on the LAS server for processing
 - **Offline Logging**: Operates offline and stores locally until upload is possible
 - **Scan Logging**: Keeps a log of all scans for diagnostics or audit
@@ -32,7 +32,7 @@ It was developed in partnership with AI.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR_ORG/etruscan.git
+   git clone https://github.com/bz32/etruscan.git
    cd etruscan
 
 2. Open the project in Android Studio:
@@ -78,9 +78,9 @@ Ensure DataWedge is set up to send barcode data to the app:
 
 1. Refile Mode
 
-- From the dashboard, tap Refile Items.
-- Scan a tray barcode.
-- Scan item barcodes. Each pairing is logged to refile.dat.
+- From the dashboard, tap Start Refile Session.
+- Scan a tray barcode, or a shelf barcode to refile directly to a shelf.
+- Scan item barcodes. Pairings scanned under a tray are logged to refile.dat; pairings scanned under a shelf are logged to boxref.dat.
 - Use the dashboard to upload to LAS when Wi-Fi is available.
 
 2. Tray-to-Shelf Mode
@@ -91,24 +91,36 @@ Ensure DataWedge is set up to send barcode data to the app:
 - Scan a tray barcode to complete the association.
 - Repeat or upload later from the dashboard.
 
-3. Upload to LAS
+3. Item-to-Shelf Mode
+
+- Tap Start Item-to-shelf Session.
+- Scan a shelf barcode.
+- Enter a numeric shelf position.
+- Scan item barcodes. Each pairing is logged to i2shelf.dat.
+- Repeat or upload later from the dashboard.
+
+4. Upload to LAS
 
 - Tap Upload to LAS.
 - Enter your credentials.
 - The app will:
-   - Upload refile.dat and t2shelf.dat via SFTP.
+   - Upload refile.dat, boxref.dat, t2shelf.dat, and i2shelf.dat via SFTP.
    - Archive each file locally with a timestamp suffix.
 
 ---
 
 ## Data Storage
 
-Files are saved on the Android device in: /Documents/Etruscan/
+Files are saved on the Android device in app-specific external storage: /Android/data/org.recaplib.etruscan/files/etruscan/
 - refile.dat
+- boxref.dat
 - t2shelf.dat
+- i2shelf.dat
 - scanlog.txt
 - refile-<timestamp>.dat (archived)
+- boxref-<timestamp>.dat (archived)
 - t2shelf-<timestamp>.dat (archived)
+- i2shelf-<timestamp>.dat (archived)
 
 ---
 
